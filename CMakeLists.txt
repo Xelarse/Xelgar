@@ -51,6 +51,12 @@ file(GLOB_RECURSE SOURCE_FILES_DIR ${CMAKE_SOURCE_DIR}/*.cpp)
 
 add_executable(${EXECUTABLE_NAME} ${SOURCE_FILES_DIR})
 
-target_link_libraries(${EXECUTABLE_NAME} PRIVATE OpenGL::GL glfw )
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE OpenGL::GL glfw)
+
+#Copy over assets to the build directory
+add_custom_target(copy_assets
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
+)
+add_dependencies(${EXECUTABLE_NAME} copy_assets)
 
 #This project setup looks like the exact type i want https://github.com/AliKhudiyev/LayZ-Renderer-Engine

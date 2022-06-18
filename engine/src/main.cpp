@@ -26,6 +26,20 @@ void processInput(GLFWwindow* wnd) {
     }
 }
 
+// These are normalized device coords (NDC) but typically screen coords are 0,0 top left
+float tri_verts[] = {
+    -0.5f, -0.5f, 0.0f,
+    0.5f, -0.5f, 0.0f,
+    0.0f,  0.5f, 0.0f,
+};
+
+const char *vertexShaderSource = "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main()\n"
+    "{\n"
+    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\0";
+
 int main(int, char**) {
     //Link up an error callback func so that we can see any errors with setting up and using glfw
     glfwSetErrorCallback(error_callback);
@@ -68,6 +82,33 @@ int main(int, char**) {
 
     int vsync = 1; //1 is on 0 is off
     glfwSwapInterval(vsync);
+
+    ////Vertex buffer
+    //Generate the unique id this buffer will have
+    GLuint vbo_id;
+    glGenBuffers(1, &vbo_id);
+
+    //Only 1 buffer of the same type can be bound at once
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_id);  //State setting function, any buffer calls to GL_ARRAY_BUFFER will be specifically to out vbo_id
+    glBufferData(GL_ARRAY_BUFFER, sizeof(tri_verts), tri_verts, GL_STATIC_DRAW); //GL_STATIC == set once used many, STREAM == set once used a few, DYNAMIC == set many used many
+
+    //Compilation of vertex shader
+    GLuint vertexShader;
+    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+
+    //Check if vertex shader compiled successfully
+    int success;
+    char infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+
+    if(!success)
+    {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        std::cout << "Vertex shader compilation failed: " << infoLog << std::endl;
+    }
+
 
     //Render loop
     while (!glfwWindowShouldClose(window)) {
