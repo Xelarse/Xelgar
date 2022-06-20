@@ -40,9 +40,10 @@ elseif  (WIN32)
     message("Building for Windows")
 
     add_compile_definitions("GLEW_STATIC")
-    add_subdirectory(${PROJECT_PARENT_DIR}/Libs/GLFW/glfw-3.3.2)
-    include_directories(${PROJECT_PARENT_DIR}/Libs/GLEW/glew-2.1.0/include/GL)
-    link_libraries(${PROJECT_PARENT_DIR}/Libs/GLEW/glew-2.1.0/lib/libglew32.a)
+    add_subdirectory(${PROJECT_PARENT_DIR}/libs/GLFW/glfw-3.3.7)
+    include_directories(${PROJECT_PARENT_DIR}/libs/GLEW/glew-2.1.0/include/GL)
+    link_libraries(${PROJECT_PARENT_DIR}/libs/GLEW/glew-2.1.0/lib/libglew32.a)
+
 else ()
     message("Platform not supported")
 endif()
