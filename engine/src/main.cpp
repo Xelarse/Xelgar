@@ -1,10 +1,4 @@
-#ifdef __linux__
-    #include <GL/glew.h>
-#elif _WIN32
-    #include <glew.h>
-#else
-#endif
-
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include <iostream>

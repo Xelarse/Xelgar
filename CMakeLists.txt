@@ -12,37 +12,31 @@ set(EXECUTABLE_NAME "XelgarRun")
 
 ##Need to get the libs for this and actually put them in the libs folder
 include_directories(
-    ${PROJECT_DIR}/include 
-    ${PROJECT_PARENT_DIR}/libs/GLEW/glew-2.2.0/include 
-    ${PROJECT_PARENT_DIR}/libs/GLFW/glfw-3.3.7/include
+    ${PROJECT_DIR}/include
+    ${PROJECT_PARENT_DIR}/lib/GLFW/glfw-3.3.7/include
 )
 
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 link_libraries(${${OPENGL_gl_LIBRARY}})
 
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIRS})
+link_libraries(${GLEW_LIBRARIES})
+
 
 if (UNIX)
     message("Building for UNIX")
     find_package(glfw3 REQUIRED)
-    find_package(GLEW REQUIRED)
-    include_directories(${GLEW_INCLUDE_DIRS})
-    link_libraries(${GLEW_LIBRARIES})
 
 elseif (APPLE)
     message("Building for APPLE")
     find_package(glfw3 REQUIRED)
-    find_package(GLEW REQUIRED)
-    include_directories(/usr/local/include)
-    link_libraries(/usr/local/lib/libGLEW.a)
 
 elseif  (WIN32)
     message("Building for Windows")
-
-    add_compile_definitions("GLEW_STATIC")
-    add_subdirectory(${PROJECT_PARENT_DIR}/libs/GLFW/glfw-3.3.7)
-    include_directories(${PROJECT_PARENT_DIR}/libs/GLEW/glew-2.1.0/include/GL)
-    link_libraries(${PROJECT_PARENT_DIR}/libs/GLEW/glew-2.1.0/lib/libglew32.a)
+    add_subdirectory(${PROJECT_PARENT_DIR}/lib/GLFW/glfw-3.3.7)
+    add_compile_definitions(GLEW_STATIC)
 
 else ()
     message("Platform not supported")
@@ -52,7 +46,7 @@ file(GLOB_RECURSE SOURCE_FILES_DIR ${CMAKE_SOURCE_DIR}/*.cpp)
 
 add_executable(${EXECUTABLE_NAME} ${SOURCE_FILES_DIR})
 
-target_link_libraries(${EXECUTABLE_NAME} PRIVATE OpenGL::GL glfw)
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE OpenGL::GL glfw GLEW::GLEW)
 
 #Copy over assets to the build directory
 add_custom_target(copy_assets
