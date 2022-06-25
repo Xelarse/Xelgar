@@ -5,6 +5,7 @@
 #include <tuple>
 #include <string>
 #include <fstream>
+#include <optional>
 
 
 /*
@@ -82,7 +83,7 @@ void processInput(GLFWwindow* wnd) {
     // }
 }
 
-GLuint createShaderFromSource(const char* path, GLenum shader_type) {
+std::optional<GLuint> createShaderFromSource(const char* path, GLenum shader_type) {
     GLuint id;
     char infoLog[512];
     int success;
@@ -93,19 +94,21 @@ GLuint createShaderFromSource(const char* path, GLenum shader_type) {
         (std::istreambuf_iterator<char>(ifs)),
         (std::istreambuf_iterator<char>())
     );
-
+    
+    const char* content_cstr = content.c_str();
     id = glCreateShader(shader_type);
-    glShaderSource(id, 1, content.c_str(), NULL);
+    glShaderSource(id, 1, &content_cstr, NULL);
     glCompileShader(id);
 
-    //Check if vertex shader compiled successfully
+    //Check if shader compiled successfully
     glGetShaderiv(id, GL_COMPILE_STATUS, &success);
     if(!success)
     {
         glGetShaderInfoLog(id, 512, NULL, infoLog);
         std::cout << "Shader compilation failed: " << infoLog << std::endl;
+        return std::nullopt;
     }
-    return id;
+    return std::optional<GLuint>{id};
 }
 
 GLuint initTriVao() { 
@@ -164,20 +167,6 @@ GLuint initRectVao() {
     return rect_vao_id;
 }
 
-const char* vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
-
-const char* fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColour;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColour = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\0";
-
 int main(int, char**) {
     //Link up an error callback func so that we can see any errors with setting up and using glfw
     glfwSetErrorCallback(error_callback);
@@ -221,36 +210,27 @@ int main(int, char**) {
     int vsync = 1; //1 is on 0 is off
     glfwSwapInterval(vsync);
 
-    ////Compilation of vertex shader
-    GLuint vertexShader;
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-
-    //Check if vertex shader compiled successfully
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
-    if(!success)
-    {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "Vertex shader compilation failed: " << infoLog << std::endl;
+    ////New shader compilation
+    //Vertex Shader
+    auto vertex_optional = createShaderFromSource("./assets/shaders/basic_vert.glsl", GL_VERTEX_SHADER);
+    GLuint vertex_shader;
+    if (vertex_optional.has_value()) {
+        vertex_shader = vertex_optional.value();
+    }
+    else {
+        std::cout << "Vertex shader failed compilation due to above error. Exiting...";
+        return 0;
     }
 
-    ////Compilation of fragment shader
-    GLuint fragmentShader;
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-
-    //Check if fragment shader compiled successfully
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-
-    if(!success)
-    {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "Fragment shader compilation failed: " << infoLog << std::endl;
+    //Fragment Shader
+    auto fragment_optional = createShaderFromSource("./assets/shaders/basic_frag.glsl", GL_FRAGMENT_SHADER);
+    GLuint fragment_shader;
+    if (fragment_optional.has_value()) {
+        fragment_shader = fragment_optional.value();
+    }
+    else {
+        std::cout << "Fragment shader failed compilation due to above error. Exiting...";
+        return 0;
     }
 
     ////Next we link these compiled shaders to a specific shader program. Which ever program is currently active will be used for subsequent render calls. Specifcally the outputs of one shader must match the inputs of the next
@@ -258,23 +238,25 @@ int main(int, char**) {
     shaderProgram = glCreateProgram();
 
     //Attach our compiled shaders
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
+    glAttachShader(shaderProgram, vertex_shader);
+    glAttachShader(shaderProgram, fragment_shader);
     glLinkProgram(shaderProgram);
 
     //Check for errors in this process
+    char info_log[512];
+    int success;
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if(!success) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cout << "Shader linking failed: " << infoLog << std::endl;
+        glGetProgramInfoLog(shaderProgram, 512, NULL, info_log);
+        std::cout << "Shader linking failed: " << info_log << std::endl;
     }
 
     //Set the program to be used, this means that all following render calls will use this program
     glUseProgram(shaderProgram); //State setting function
 
     ////After shader objects are linked into a program object they can be freed
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
 
     //Init of rect and tri vaos to use in the demo
     GLuint rect_vao_id = initRectVao();
