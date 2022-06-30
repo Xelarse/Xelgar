@@ -7,6 +7,9 @@
 #include <fstream>
 #include <optional>
 
+#include "gfx/window.hpp"
+#include "gfx/renderer.hpp"
+
 
 /*
 Exercises
@@ -16,7 +19,6 @@ To really get a good grasp of the concepts discussed a few exercises were set up
     Now create the same 2 triangles using two different VAOs and VBOs for their data: solution.
     Create two shader programs where the second program uses a different fragment shader that outputs the color yellow; draw both triangles again where one outputs the color yellow: solution.
 */
-
 
 bool rect_active = false;
 bool key_pressed = false;
@@ -168,6 +170,11 @@ GLuint initRectVao() {
 }
 
 int main(int, char**) {
+    //Testing for refactoring
+    Xelgar::Window wnd {};
+    Xelgar::Renderer rend = Xelgar::Renderer(wnd.getWindow());
+
+
     //Link up an error callback func so that we can see any errors with setting up and using glfw
     glfwSetErrorCallback(error_callback);
 
@@ -196,9 +203,6 @@ int main(int, char**) {
         return 0;
     }
 
-    //Set window callbacks
-    glfwSetKeyCallback(window, key_callback);
-
     //Setup GL viewport
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
@@ -209,6 +213,9 @@ int main(int, char**) {
 
     int vsync = 1; //1 is on 0 is off
     glfwSwapInterval(vsync);
+
+    //Set window callbacks
+    glfwSetKeyCallback(window, key_callback);
 
     ////New shader compilation
     //Vertex Shader
