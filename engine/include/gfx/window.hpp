@@ -43,15 +43,13 @@ namespace Xelgar {
             //Destructor
             ~Window();
 
-            GLFWwindow* getWindow() { return pWnd; }
+            GLFWwindow* getWindowPtr() { return pWnd; }
             void setKeyCallback(std::function<void(GLFWwindow*, int, int, int ,int)> callback);
         private:
             void createWindow();
             static void errorHandlerCallback(int err, const char* desc);
-            static void framebufferSizeChangeCallback(GLFWwindow* wnd, int new_width, int new_height);
 
             GLFWwindow* pWnd = nullptr;
             WindowSettings currentSettings;
-            // Vec2<int> currentViewport;
     };
 }

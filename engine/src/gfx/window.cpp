@@ -42,18 +42,9 @@ namespace Xelgar {
             glfwTerminate();
             return;
         }
-
-        //monitor changes in framebuffer size
-        glfwSetFramebufferSizeCallback(pWnd, framebufferSizeChangeCallback);
     }
 
     void Window::errorHandlerCallback(int error, const char* desc) {
         std::cout << "An glfw error has occured: " << desc << std::endl;
-    }
-
-    void Window::framebufferSizeChangeCallback(GLFWwindow* wnd, int new_width, int new_height) {
-        std::cout<< "Framebuffer size changed to width: " << new_width << ", height: " << new_height << "; updating viewport" << std::endl;
-        // currentViewport = Vec2<int> {.x = new_width, .y = new_height};
-        // glViewport(0, 0, new_width, new_height);
     }
 }

@@ -172,50 +172,50 @@ GLuint initRectVao() {
 int main(int, char**) {
     //Testing for refactoring
     Xelgar::Window wnd {};
-    Xelgar::Renderer rend = Xelgar::Renderer(wnd.getWindow());
+    Xelgar::Renderer rend = Xelgar::Renderer(wnd.getWindowPtr());
 
 
-    //Link up an error callback func so that we can see any errors with setting up and using glfw
-    glfwSetErrorCallback(error_callback);
+    // //Link up an error callback func so that we can see any errors with setting up and using glfw
+    // glfwSetErrorCallback(error_callback);
 
 
-    if (!glfwInit()) {
-        std::cout << "GLFW failed to initialize, exiting..." << std::endl;
-        return 0;
-    }
+    // if (!glfwInit()) {
+    //     std::cout << "GLFW failed to initialize, exiting..." << std::endl;
+    //     return 0;
+    // }
 
-    //Setup a window to hold our context within
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Xelgar Engine", NULL, NULL);
-    if (!window) {
-        std::cout << "GLFW failed to create window, exiting..." << std::endl;
-        glfwTerminate();
-        return 0;
-    }
+    // //Setup a window to hold our context within
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    // GLFWwindow* window = glfwCreateWindow(1280, 720, "Xelgar Engine", NULL, NULL);
+    // if (!window) {
+    //     std::cout << "GLFW failed to create window, exiting..." << std::endl;
+    //     glfwTerminate();
+    //     return 0;
+    // }
 
-    //Set up a GL context in the newly created window
-    glfwMakeContextCurrent(window);
-    if (glewInit() != GLEW_OK) {
-        std::cout << "Failed to init GLEW" << std::endl;
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return 0;
-    }
+    // //Set up a GL context in the newly created window
+    // glfwMakeContextCurrent(window);
+    // if (glewInit() != GLEW_OK) {
+    //     std::cout << "Failed to init GLEW" << std::endl;
+    //     glfwDestroyWindow(window);
+    //     glfwTerminate();
+    //     return 0;
+    // }
 
-    //Setup GL viewport
-    int width, height;
-    glfwGetFramebufferSize(window, &width, &height);
-    glViewport(0, 0, width, height);
+    // //Setup GL viewport
+    // int width, height;
+    // glfwGetFramebufferSize(window, &width, &height);
+    // glViewport(0, 0, width, height);
 
-    //monitor changes in framebuffer size
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    // //monitor changes in framebuffer size
+    // glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    int vsync = 1; //1 is on 0 is off
-    glfwSwapInterval(vsync);
+    // int vsync = 1; //1 is on 0 is off
+    // glfwSwapInterval(vsync);
 
-    //Set window callbacks
-    glfwSetKeyCallback(window, key_callback);
+    //TODO Set window callbacks
+    glfwSetKeyCallback(wnd.getWindowPtr(), key_callback);
 
     ////New shader compilation
     //Vertex Shader
@@ -270,7 +270,7 @@ int main(int, char**) {
     GLuint tri_vao_id = initTriVao();
 
     //Render loop
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(wnd.getWindowPtr())) {
         //// Input Processing
         double time_since_creation = glfwGetTime();
         //Alternative to processing Input, instead of using keypress callback, use a glfw specific func. I guess this specifically gets inputs at the start of a frame instead of processing them at the end
@@ -294,12 +294,12 @@ int main(int, char**) {
         }
 
         //// Check events and swap buffers with new renders
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(wnd.getWindowPtr());
         glfwPollEvents();
     }
 
 
     //glfw cleanup
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(wnd.getWindowPtr());
     glfwTerminate();
 }
